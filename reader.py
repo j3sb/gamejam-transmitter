@@ -36,13 +36,8 @@ def read_thread():
 
 
 image_dt = 0.005
-image_width = 128
+image_width = 64
 image_height = image_width
-
-freq_666 = False
-freq_666_t = 0
-freq_1666 = False
-freq_1666_t = 0
 
 
 def main():
