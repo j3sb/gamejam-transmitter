@@ -19,7 +19,7 @@ picam2.configure(config)
 # # picam2.capture_file("test_image.jpg")
 # picam2.stop()
 
-while (True):
+while True:
     if button.is_pressed:
         picam2.start()
         sleep(1)
@@ -30,10 +30,17 @@ while (True):
 
         # turn on ptt
         ptt_led.on()
-        for y, x in np.ndindex(img.shape[:2]):
-            pixel = img[y, x]
-            signal_led.frequency = pixel * 2 + 500  # scale this somehow
-            sleep(0.05)
+        # for y, x in np.ndindex(img.shape[:2]):
+        #     pixel = img[y, x]
+        #     signal_led.frequency = pixel * 2 + 500  # scale this somehow
+        #     sleep(0.05)
+
+        for _ in range(10):
+            signal_led.frequency = 500
+            sleep(0.5)
+            signal_led.frequency = 1000
+            sleep(0.5)
+
         # turn off ptt
         ptt_led.off()
 
