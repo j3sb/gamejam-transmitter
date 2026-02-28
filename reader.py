@@ -89,13 +89,6 @@ def main():
         freq_graph.set_data(x, y3)
 
         for n in y3:
-            if abs(n - 666) < 10 or abs(n - 666) < 10:
-                if not freq_666:
-                    freq_666 = True
-                    freq_666_t = time.time()
-            else:
-                freq_666 = False
-
             buffer[buffer_i] = n
             buffer_i = (buffer_i + 1) % buffer.shape[0]
 
