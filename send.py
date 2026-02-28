@@ -10,7 +10,7 @@ ptt_led = gpiozero.LED(3, initial_value=False)
 # # Initialize the camera
 picam2 = Picamera2()
 # # Configure for still capture
-config = picam2.create_preview_configuration(main={"size": (100, 100)})
+config = picam2.create_preview_configuration(main={"size": (10, 10)})
 # config = picam2.create_still_configuration()
 picam2.configure(config)
 # # Start the camera and capture
@@ -43,6 +43,8 @@ while True:
 
         # turn off ptt
         ptt_led.off()
+
+    signal_led.frequency = 1000
 
     sleep(0.05)
     # led.frequency = 1000
