@@ -44,7 +44,7 @@ while True:
                 signal_led.frequency = int(
                     int(pixel) * 6 + 500)  # scale this somehow
                 now += 0.005
-                sleep(now - time.time())
+                sleep(max(0, now - time.time()))
                 # print(x,y)
                 # print(pixel)
 
