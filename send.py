@@ -11,7 +11,7 @@ ptt_led = gpiozero.LED(3, initial_value=False)
 # # Initialize the camera
 picam2 = Picamera2()
 # # Configure for still capture
-config = picam2.create_preview_configuration(main={"size": (10, 10)})
+config = picam2.create_preview_configuration(main={"size": (128, 128)})
 # config = picam2.create_still_configuration()
 picam2.configure(config)
 # # Start the camera and capture
@@ -42,8 +42,8 @@ while True:
                 if x == 0:
                     pixel = 255
                 signal_led.frequency = int(
-                    int(pixel) * 2 + 500)  # scale this somehow
-                now += 0.05
+                    int(pixel) * 2 + 2000)  # scale this somehow
+                now += 0.005
                 sleep(now - time.time())
                 #print(x,y)
                 #print(pixel)
