@@ -1,5 +1,6 @@
 import gpiozero
 from time import sleep
+import time
 from picamera2 import Picamera2
 import numpy as np
 
@@ -19,6 +20,8 @@ picam2.configure(config)
 # # picam2.capture_file("test_image.jpg")
 # picam2.stop()
 
+print("ok")
+
 while True:
     if button.is_pressed:
         picam2.start()
@@ -27,15 +30,24 @@ while True:
 
         # convert to grayscale thx
         gray = np.dot(img[..., :3], [0.299, 0.587, 0.114])
+        
+        print(gray.shape)
 
         # turn on ptt
         ptt_led.on()
+        now = time.time()
         for y in range(img.shape[0]):
             for x in range(img.shape[1]):
                 pixel = img[y, x, 0]
+                if x == 0:
+                    pixel = 255
                 signal_led.frequency = int(
                     int(pixel) * 2 + 500)  # scale this somehow
-                sleep(0.05)
+                now += 0.05
+                sleep(now - time.time())
+                #print(x,y)
+                #print(pixel)
+            print(y)
 
         # for _ in range(10):
         #     signal_led.frequency = 500
