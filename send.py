@@ -10,7 +10,8 @@ ptt_led = gpiozero.LED(3, initial_value=False)
 # # Initialize the camera
 picam2 = Picamera2()
 # # Configure for still capture
-config = picam2.create_still_configuration()
+config = picam2.create_preview_configuration(main={"size": (100, 100)})
+# config = picam2.create_still_configuration()
 picam2.configure(config)
 # # Start the camera and capture
 # picam2.start()
