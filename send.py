@@ -30,10 +30,11 @@ while True:
 
         # turn on ptt
         ptt_led.on()
-        for y, x in np.ndindex(img.shape[:2]):
-            pixel = img[y, x]
-            signal_led.frequency = pixel * 2 + 500  # scale this somehow
-            sleep(0.05)
+        for y in range(img.shape[0]):
+            for x in range(img.shape[1]):
+                pixel = img[y, x]
+                signal_led.frequency = pixel * 2 + 500  # scale this somehow
+                sleep(0.05)
 
         # for _ in range(10):
         #     signal_led.frequency = 500
