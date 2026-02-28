@@ -33,8 +33,28 @@ def read_thread():
             print("dropping data")
 
 
+image_width = 10
+image_height = image_width
+image = np.zeros((image_height, image_width))
+pointer = 0
+
+
+def add_to_image(pixel):
+    global pointer
+    print(pointer)
+    x = pointer % image_width
+    y = int(pointer / image_height)
+    image[y, x] = pixel
+    pointer += 1
+    pointer = pointer % (image_width * image_height)
+
+
 def main():
-    graph = plt.plot([0], [0])[0]
+    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
+    graph = axes[0].plot([0], [0])[0]
+    axes[0].set_xlim([0, 1000 / 10_000])  # 1000 samples @ 10 kHz
+    axes[0].set_ylim([0, 1400])
+    implot = axes[1].imshow(image, cmap='gray', vmin=0, vmax=1000)
 
     while True:
         data, dt = DATA_QUEUE.get()
@@ -43,7 +63,7 @@ def main():
 
         # Find the positions of the rising edge
         next_y = np.concat([y[1:], y[-1:]])
-        edge = (next_y > 0) > (y > 0) # beautiful code
+        edge = (next_y > 0) > (y > 0)  # beautiful code
         has_edge = np.where(edge)[0]
 
         # Interpolate and scale to find exact edge positions
@@ -55,10 +75,13 @@ def main():
         x2 = edge_pos[:-1]
         y2 = 1.0 / deltas
 
-        graph.set_data(x2, y2)
+        add_to_image(np.mean(y2))
 
-        plt.xlim([0, 1000 / 10_000]) # 1000 samples @ 10 kHz
-        plt.ylim([0, 1400])
+        implot.set_data(image)
+
+        print(image)
+
+        graph.set_data(x2, y2)
 
         plt.draw()
         plt.pause(1e-3)
