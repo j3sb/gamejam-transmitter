@@ -36,6 +36,11 @@ while True:
 
         # turn on ptt
         ptt_led.on()
+        # tell the receive i am sending
+        signal_led.frequency = 666
+        sleep(0.5)
+        signal_led.frequency = 1666
+        sleep(0.5)
         now = time.time()
         for y in range(img.shape[0]):
             for x in range(img.shape[1]):

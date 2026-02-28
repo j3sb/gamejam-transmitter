@@ -39,6 +39,11 @@ image_dt = 0.005
 image_width = 128
 image_height = image_width
 
+freq_666 = False
+freq_666_t = 0
+freq_1666 = False
+freq_1666_t = 0
+
 
 def main():
     fig, axes = plt.subplots(2, 2, figsize=(8, 8))
@@ -48,7 +53,8 @@ def main():
     axes[0][0].set_ylim([-0.5, 0.5])
     axes[1][0].set_xlim([0, 1000])  # 1000 samples
     axes[1][0].set_ylim([0, 5000])  # 5 kHz
-    implot = axes[0][1].imshow(np.zeros((image_width, image_height)), cmap='gray', vmin=0, vmax=255)
+    implot = axes[0][1].imshow(
+        np.zeros((image_width, image_height)), cmap='gray', vmin=0, vmax=255)
 
     dt = 1/DATA_FREQ
     buffer = np.zeros(int(image_width * image_height * (image_dt / dt)))
@@ -78,11 +84,18 @@ def main():
         if x2.shape[0] == 0:
             x2 = np.array([0.0])
             y2 = np.array([0.0])
-        y = np.interp(x, x2, y2)
+        y3 = np.interp(x, x2, y2)
 
-        freq_graph.set_data(x, y)
+        freq_graph.set_data(x, y3)
 
-        for n in y:
+        for n in y3:
+            if abs(n - 666) < 10 or abs(n - 666) < 10:
+                if not freq_666:
+                    freq_666 = True
+                    freq_666_t = time.time()
+            else:
+                freq_666 = False
+
             buffer[buffer_i] = n
             buffer_i = (buffer_i + 1) % buffer.shape[0]
 
@@ -90,12 +103,12 @@ def main():
         shift = buffer_i - buffer_i % row_size + row_size
         rotated = np.concat([buffer[shift:], buffer[:shift]])
 
-        image = scipy.signal.resample(rotated, image_width * image_height).reshape((image_height, image_width))
+        image = scipy.signal.resample(
+            rotated, image_width * image_height).reshape((image_height, image_width))
 
         image = (image - 500) / 6
 
         implot.set_data(image)
-
 
         plt.draw()
         plt.pause(1e-3)
