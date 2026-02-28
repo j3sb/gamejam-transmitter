@@ -51,9 +51,9 @@ int main(void)
   adc_select_input(0);
 
   // turn on led
-  gpio_init(PICO_DEFAULT_LED_PIN);
-  gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
-  gpio_put(PICO_DEFAULT_LED_PIN, true);
+  // gpio_init(PICO_DEFAULT_LED_PIN);
+  // gpio_set_dir(PICO_DEFAULT_LED_PIN, GPIO_OUT);
+  // gpio_put(PICO_DEFAULT_LED_PIN, true);
 
   absolute_time_t t1 = get_absolute_time();
   while (1)
