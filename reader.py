@@ -33,7 +33,7 @@ def read_thread():
             print("dropping data")
 
 
-image_dt = 1 / 100
+image_dt = 1 / 1000
 image_width = 50
 image_height = image_width
 image = np.zeros((image_height, image_width))
