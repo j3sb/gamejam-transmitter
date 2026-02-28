@@ -1,15 +1,17 @@
 import gpiozero
 from time import sleep
 from picamera2 import Picamera2
+import numpy as np
 
-led = gpiozero.PWMLED(18, initial_value=0.5, frequency=1000)
+signal_led = gpiozero.PWMLED(18, initial_value=0.5, frequency=1000)
 button = gpiozero.Button(4)
+ptt_led = gpiozero.LED(3, initial_value=False)
 
 # # Initialize the camera
-# picam2 = Picamera2()
+picam2 = Picamera2()
 # # Configure for still capture
-# config = picam2.create_still_configuration()
-# picam2.configure(config)
+config = picam2.create_still_configuration()
+picam2.configure(config)
 # # Start the camera and capture
 # picam2.start()
 # sleep(2)  # Wait for settings to take effect
@@ -17,7 +19,22 @@ button = gpiozero.Button(4)
 # picam2.stop()
 
 while (True):
-    led.frequency = 1000 if button.is_pressed else 500
+    if button.is_pressed:
+        picam2.start()
+        sleep(1)
+        img = picam2.capture_array("main")
+
+        # convert to grayscale thx
+        gray = np.dot(img[..., :3], [0.299, 0.587, 0.114])
+
+        # turn on ptt
+        ptt_led.on()
+        for y, x in np.ndindex(img.shape[:2]):
+            pixel = img[y, x]
+            signal_led.frequency = pixel * 2 + 500  # scale this somehow
+            sleep(0.05)
+        # turn off ptt
+        ptt_led.off()
 
     sleep(0.05)
     # led.frequency = 1000
