@@ -39,10 +39,8 @@ while True:
         for y in range(img.shape[0]):
             for x in range(img.shape[1]):
                 pixel = img[y, x, 0]
-                if x == 0:
-                    pixel = 255
                 signal_led.frequency = int(
-                    int(pixel) * 2 + 2000)  # scale this somehow
+                    int(pixel) * 6 + 500)  # scale this somehow
                 now += 0.005
                 sleep(now - time.time())
                 #print(x,y)
@@ -50,7 +48,7 @@ while True:
             print(y)
 
         # for _ in range(10):
-        #     signal_led.frequency = 500
+        #     signal_led.frequency = 3000
         #     sleep(0.5)
         #     signal_led.frequency = 1000
         #     sleep(0.5)
