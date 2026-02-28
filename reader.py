@@ -41,11 +41,14 @@ image_height = image_width
 
 
 def main():
-    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
-    graph = axes[0].plot([0], [0])[0]
-    axes[0].set_xlim([0, 1000 / 10_000])  # 1000 samples @ 10 kHz
-    axes[0].set_ylim([0, 1400])
-    implot = axes[1].imshow(np.zeros((image_width, image_height)), cmap='gray', vmin=0, vmax=255)
+    fig, axes = plt.subplots(2, 2, figsize=(8, 8))
+    raw_graph = axes[0][0].plot([0], [0])[0]
+    freq_graph = axes[1][0].plot([0], [0])[0]
+    axes[0][0].set_xlim([0, 1000])  # 1000 samples
+    axes[0][0].set_ylim([-0.5, 0.5])
+    axes[1][0].set_xlim([0, 1000])  # 1000 samples
+    axes[1][0].set_ylim([0, 5000])  # 5 kHz
+    implot = axes[0][1].imshow(np.zeros((image_width, image_height)), cmap='gray', vmin=0, vmax=255)
 
     dt = 1/DATA_FREQ
     buffer = np.zeros(int(image_width * image_height * (image_dt / dt)))
@@ -56,6 +59,8 @@ def main():
 
         x = np.arange(data.shape[0])
         y = data - np.mean(data)
+
+        raw_graph.set_data(x, y)
 
         # Find the positions of the rising edge
         next_y = np.concat([y[1:], y[-1:]])
@@ -75,6 +80,8 @@ def main():
             y2 = np.array([0.0])
         y = np.interp(x, x2, y2)
 
+        freq_graph.set_data(x, y)
+
         for n in y:
             buffer[buffer_i] = n
             buffer_i = (buffer_i + 1) % buffer.shape[0]
@@ -85,11 +92,10 @@ def main():
 
         image = scipy.signal.resample(rotated, image_width * image_height).reshape((image_height, image_width))
 
-        image = (image - 2000) / 2
+        image = (image - 500) / 6
 
         implot.set_data(image)
 
-        graph.set_data(x2, y2)
 
         plt.draw()
         plt.pause(1e-3)
