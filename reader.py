@@ -4,10 +4,12 @@ import queue
 
 import serial
 import numpy as np
+import scipy
 import matplotlib.pyplot as plt
 
 
 DATA_QUEUE = queue.Queue(maxsize=10)
+DATA_FREQ = 10_000
 
 
 def read_thread():
@@ -27,28 +29,15 @@ def read_thread():
 
         data = np.array(list(data)) / 255
         try:
-            DATA_QUEUE.put_nowait((data, dt))
+            DATA_QUEUE.put_nowait(data)
             print(f"receiving @ {1.0/dt/1000:6.3f} kHz")
         except queue.Full:
             print("dropping data")
 
 
-image_dt = 0.05
-image_width = 100
+image_dt = 0.005
+image_width = 128
 image_height = image_width
-image = np.zeros((image_height, image_width))
-pointer = 0
-
-
-def add_to_image(pixels):
-    global pointer
-    # print(pointer)
-    for pixel in pixels.tolist():
-        x = pointer % image_width
-        y = int(pointer / image_height)
-        image[y, x] = pixel
-        pointer += 1
-        pointer = pointer % (image_width * image_height)
 
 
 def main():
@@ -56,11 +45,16 @@ def main():
     graph = axes[0].plot([0], [0])[0]
     axes[0].set_xlim([0, 1000 / 10_000])  # 1000 samples @ 10 kHz
     axes[0].set_ylim([0, 1400])
-    implot = axes[1].imshow(image, cmap='gray', vmin=0, vmax=1000)
+    implot = axes[1].imshow(np.zeros((image_width, image_height)), cmap='gray', vmin=0, vmax=255)
+
+    dt = 1/DATA_FREQ
+    buffer = np.zeros(int(image_width * image_height * (image_dt / dt)))
+    buffer_i = 0
 
     while True:
-        data, dt = DATA_QUEUE.get()
+        data = DATA_QUEUE.get()
 
+        x = np.arange(data.shape[0])
         y = data - np.mean(data)
 
         # Find the positions of the rising edge
@@ -70,25 +64,30 @@ def main():
 
         # Interpolate and scale to find exact edge positions
         edge_pos = has_edge + y[has_edge] / (y[has_edge] - next_y[has_edge])
-        edge_pos = edge_pos * dt
 
-        deltas = edge_pos[1:] - edge_pos[:-1]
-
+        # Compute frequencies
+        deltas = (edge_pos[1:] - edge_pos[:-1]) * dt
         x2 = edge_pos[:-1]
         y2 = 1.0 / deltas
 
         if x2.shape[0] == 0:
             x2 = np.array([0.0])
             y2 = np.array([0.0])
+        y = np.interp(x, x2, y2)
 
-        x3 = np.arange(0, dt * data.shape[0], image_dt)
-        y3 = np.interp(x3, x2, y2)
+        for n in y:
+            buffer[buffer_i] = n
+            buffer_i = (buffer_i + 1) % buffer.shape[0]
 
-        add_to_image(y3)
+        row_size = buffer.shape[0] // image_height
+        shift = buffer_i - buffer_i % row_size + row_size
+        rotated = np.concat([buffer[shift:], buffer[:shift]])
+
+        image = scipy.signal.resample(rotated, image_width * image_height).reshape((image_height, image_width))
+
+        image = (image - 2000) / 2
 
         implot.set_data(image)
-
-        # print(image)
 
         graph.set_data(x2, y2)
 
