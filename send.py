@@ -33,7 +33,8 @@ while True:
         for y in range(img.shape[0]):
             for x in range(img.shape[1]):
                 pixel = img[y, x]
-                signal_led.frequency = 500  # scale this somehow
+                signal_led.frequency = int(
+                    pixel * 2 + 500)  # scale this somehow
                 sleep(0.05)
 
         # for _ in range(10):
