@@ -14,6 +14,9 @@ picam2 = Picamera2()
 config = picam2.create_preview_configuration(main={"size": (128, 128)})
 # config = picam2.create_still_configuration()
 picam2.configure(config)
+
+picam2.start()
+sleep(1)
 # # Start the camera and capture
 # picam2.start()
 # sleep(2)  # Wait for settings to take effect
@@ -24,13 +27,11 @@ print("ok")
 
 while True:
     if button.is_pressed:
-        picam2.start()
-        sleep(1)
         img = picam2.capture_array("main")
 
         # convert to grayscale thx
         gray = np.dot(img[..., :3], [0.299, 0.587, 0.114])
-        
+
         print(gray.shape)
 
         # turn on ptt
@@ -43,8 +44,8 @@ while True:
                     int(pixel) * 6 + 500)  # scale this somehow
                 now += 0.005
                 sleep(now - time.time())
-                #print(x,y)
-                #print(pixel)
+                # print(x,y)
+                # print(pixel)
             print(y)
 
         # for _ in range(10):
