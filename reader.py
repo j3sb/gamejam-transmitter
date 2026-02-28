@@ -33,20 +33,22 @@ def read_thread():
             print("dropping data")
 
 
-image_width = 10
+image_dt = 1 / 100
+image_width = 50
 image_height = image_width
 image = np.zeros((image_height, image_width))
 pointer = 0
 
 
-def add_to_image(pixel):
+def add_to_image(pixels):
     global pointer
-    print(pointer)
-    x = pointer % image_width
-    y = int(pointer / image_height)
-    image[y, x] = pixel
-    pointer += 1
-    pointer = pointer % (image_width * image_height)
+    # print(pointer)
+    for pixel in pixels.tolist():
+        x = pointer % image_width
+        y = int(pointer / image_height)
+        image[y, x] = pixel
+        pointer += 1
+        pointer = pointer % (image_width * image_height)
 
 
 def main():
@@ -75,11 +77,18 @@ def main():
         x2 = edge_pos[:-1]
         y2 = 1.0 / deltas
 
-        add_to_image(np.mean(y2))
+        if x2.shape[0] == 0:
+            x2 = np.array([0.0])
+            y2 = np.array([0.0])
+
+        x3 = np.arange(0, dt * data.shape[0], image_dt)
+        y3 = np.interp(x3, x2, y2)
+
+        add_to_image(y3)
 
         implot.set_data(image)
 
-        print(image)
+        # print(image)
 
         graph.set_data(x2, y2)
 
