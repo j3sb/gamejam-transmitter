@@ -32,7 +32,7 @@ while True:
         ptt_led.on()
         for y in range(img.shape[0]):
             for x in range(img.shape[1]):
-                pixel = img[y, x]
+                pixel = img[y, x, 0]
                 signal_led.frequency = int(
                     pixel * 2 + 500)  # scale this somehow
                 sleep(0.05)
