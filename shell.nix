@@ -6,6 +6,7 @@ pkgs.mkShell {
     (pkgs.python3.withPackages (python-pkgs: with python-pkgs; [
       matplotlib numpy pyserial
     ]))
+    pkgs.gcc-arm-embedded    
   ];
 }
 
