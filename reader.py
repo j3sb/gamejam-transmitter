@@ -35,10 +35,11 @@ def read_thread():
             print("dropping data")
 
 
-image_dt = 0.005
-image_width = 64
-image_height = image_width
+IMAGE_DT = 0.005
 
+SCALE_FACTOR = int(0.5 + DATA_FREQ * IMAGE_DT)
+IMAGE_WIDTH = 64
+IMAGE_HEIGHT = IMAGE_WIDTH
 
 def main():
     fig, axes = plt.subplots(2, 2, figsize=(8, 8))
@@ -49,11 +50,31 @@ def main():
     axes[1][0].set_xlim([0, 1000])  # 1000 samples
     axes[1][0].set_ylim([0, 5000])  # 5 kHz
     implot = axes[0][1].imshow(
-        np.zeros((image_width, image_height)), cmap='gray', vmin=0, vmax=255)
+        np.zeros((IMAGE_WIDTH, IMAGE_HEIGHT)),
+        cmap='gray', vmin=0, vmax=255,
+    )
 
     dt = 1/DATA_FREQ
-    buffer = np.zeros(int(image_width * image_height * (image_dt / dt)))
+    buffer = np.zeros(IMAGE_WIDTH * IMAGE_HEIGHT * SCALE_FACTOR)
+    line_length = buffer.shape[0] // IMAGE_HEIGHT  # Hopefully an integer
     buffer_i = 0
+
+    extra_offset = 0
+
+    def on_press(event):
+        nonlocal extra_offset
+
+        if event.key == "up":
+            extra_offset += 8 * SCALE_FACTOR
+        if event.key == "down":
+            extra_offset -= 8 * SCALE_FACTOR
+        if event.key == "left":
+            extra_offset += 1 * SCALE_FACTOR
+        if event.key == "right":
+            extra_offset -= 1 * SCALE_FACTOR
+        extra_offset %= line_length
+
+    fig.canvas.mpl_connect('key_press_event', on_press)
 
     while True:
         data = DATA_QUEUE.get()
@@ -87,12 +108,11 @@ def main():
             buffer[buffer_i] = n
             buffer_i = (buffer_i + 1) % buffer.shape[0]
 
-        row_size = buffer.shape[0] // image_height
-        shift = buffer_i - buffer_i % row_size + row_size
+        shift = buffer_i - buffer_i % line_length + line_length + extra_offset
         rotated = np.concat([buffer[shift:], buffer[:shift]])
 
-        image = scipy.signal.resample(
-            rotated, image_width * image_height).reshape((image_height, image_width))
+        image = scipy.signal.resample(rotated, IMAGE_WIDTH * IMAGE_HEIGHT) \
+            .reshape((IMAGE_HEIGHT, IMAGE_WIDTH))
 
         image = (image - 500) / 6
 
