@@ -7,6 +7,8 @@ pkgs.mkShell {
       matplotlib numpy pyserial scipy
     ]))
     pkgs.gcc-arm-embedded
+    pkgs.cmake
+    pkgs.picotool
   ];
+  PICO_SDK_PATH="${pkgs.pico-sdk.override { withSubmodules = true; }}/lib/pico-sdk";
 }
-
