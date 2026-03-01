@@ -60,9 +60,10 @@ def main():
     buffer_i = 0
 
     extra_offset = 0
+    paused = False
 
     def on_press(event):
-        nonlocal extra_offset
+        nonlocal extra_offset, paused
 
         if event.key == "up":
             extra_offset += 8 * SCALE_FACTOR
@@ -72,6 +73,9 @@ def main():
             extra_offset += 1 * SCALE_FACTOR
         if event.key == "right":
             extra_offset -= 1 * SCALE_FACTOR
+        if event.key == " ":
+            paused = not paused
+        print(repr(event.key))
         extra_offset %= line_length
 
     fig.canvas.mpl_connect('key_press_event', on_press)
@@ -104,9 +108,10 @@ def main():
 
         freq_graph.set_data(x, y3)
 
-        for n in y3:
-            buffer[buffer_i] = n
-            buffer_i = (buffer_i + 1) % buffer.shape[0]
+        if not paused:
+            for n in y3:
+                buffer[buffer_i] = n
+                buffer_i = (buffer_i + 1) % buffer.shape[0]
 
         shift = buffer_i - buffer_i % line_length + line_length + extra_offset
         rotated = np.concat([buffer[shift:], buffer[:shift]])
@@ -116,7 +121,7 @@ def main():
 
         image = (image - 500) / 6
 
-        implot.set_data(image)
+        implot.set_data(image.T[::1, ::-1])
 
         plt.draw()
         plt.pause(1e-3)
